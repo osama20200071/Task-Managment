@@ -6,8 +6,8 @@ export const DATABASE_ID = import.meta.env.VITE_DATABASE_ID;
 export const COLLECTION_ID_TASKS = import.meta.env.VITE_COLLECTION_TASKS_ID;
 export const BUCKET_ID = import.meta.env.VITE_BUCKET_ID;
 
-client.setEndpoint(API_ENDPOINT).setProject(PROJECT_ID);
 const client = new Client();
+client.setEndpoint(API_ENDPOINT).setProject(PROJECT_ID);
 const storage = new Storage(client);
 const databases = new Databases(client);
 const account = new Account(client);
