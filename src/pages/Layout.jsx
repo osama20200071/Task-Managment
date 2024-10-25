@@ -1,10 +1,12 @@
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logout from "../Icons/Logout";
-import Header from "../components/Header";
+import Spinner from "../Icons/Spinner";
+// import Header from "../components/Header";
 
 const Layout = () => {
-  const { handleLogout, user } = useAuth();
+  const { handleLogout, user, isLoading } = useAuth();
+
   return (
     <main id="app">
       {/* <Header /> */}
@@ -13,7 +15,7 @@ const Layout = () => {
           <Logout />
         </div>
       )}
-      <Outlet />
+      {isLoading ? <Spinner size="60" /> : <Outlet />}
     </main>
   );
 };

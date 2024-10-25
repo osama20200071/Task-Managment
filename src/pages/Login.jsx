@@ -2,8 +2,8 @@ import "../form.css";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useNavigate, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useState } from "react";
 import Callout from "../components/Callout";
 import Spinner from "../Icons/Spinner";
 import { useAuth } from "../context/AuthContext";
@@ -17,16 +17,8 @@ const schema = yup.object({
 });
 
 function Login() {
-  const { handleLogin, user } = useAuth();
-  const navigate = useNavigate();
+  const { handleLogin } = useAuth();
   const [err, setErr] = useState("");
-
-  // if user loggedIn go to home page
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
 
   const {
     register,
@@ -46,9 +38,6 @@ function Login() {
       setErr(errMsg);
     }
   };
-
-  // prevent loggedIn user from accessing this page
-  if (user) return null;
 
   return (
     <div>

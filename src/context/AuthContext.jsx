@@ -12,7 +12,8 @@ const authContext = createContext({
 export const useAuth = () => useContext(authContext);
 
 const AuthContext = ({ children }) => {
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     getCurrentLoggedInUser();
@@ -25,6 +26,7 @@ const AuthContext = ({ children }) => {
     } catch (error) {
       console.log("no user logged in..");
     }
+    setIsLoading(false);
   };
 
   const handleLogin = async (credentials) => {
@@ -59,7 +61,7 @@ const AuthContext = ({ children }) => {
         credentials.name
       );
       console.log("User registered!", response);
-      onRest();
+      // onRest();
 
       await account.createEmailPasswordSession(
         credentials.email,
@@ -72,7 +74,7 @@ const AuthContext = ({ children }) => {
     }
   };
 
-  let ctx = { user, handleLogin, handleLogout, handleRegister };
+  let ctx = { user, handleLogin, handleLogout, handleRegister, isLoading };
 
   return <authContext.Provider value={ctx}>{children}</authContext.Provider>;
 };

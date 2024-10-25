@@ -1,6 +1,5 @@
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useAuth } from "../context/AuthContext";
@@ -18,20 +17,12 @@ const schema = yup.object({
     .min(8, "Password must have at least 8 characters"),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref("password"), null], "Passwords must match")
-    .required("Confirm Password is required"),
+    .required("Confirm Password is required")
+    .oneOf([yup.ref("password"), null], "Passwords must match"),
 });
 
 function Register() {
-  const { handleRegister, user } = useAuth();
-  const navigate = useNavigate();
-
-  // if user loggedIn go to home page
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
+  const { handleRegister } = useAuth();
 
   const {
     register,
@@ -47,9 +38,6 @@ function Register() {
     console.log(data);
     await handleRegister(data, reset);
   };
-
-  // prevent loggedIn user from accessing this page
-  if (user) return null;
 
   return (
     <div>
