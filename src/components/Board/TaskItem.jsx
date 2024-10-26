@@ -1,6 +1,11 @@
 import { useDispatch } from "react-redux";
 import { updateTask, updateTasksState } from "../../store/taskSlice";
 import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
+import Delete from "../../Icons/Delete";
+import Edit from "../../Icons/Edit";
+import { useState } from "react";
+import TaskDialog from "../TaskDialog";
 
 const priorityColors = {
   low: "rgb(59 130 246)",
@@ -10,6 +15,9 @@ const priorityColors = {
 
 function TaskItem({ task }) {
   const dispatch = useDispatch();
+  const [isEdit, setIsEdit] = useState(false);
+  const { user } = useAuth();
+
   const changeTaskState = async (taskId, newState) => {
     if (newState === "") {
       return;
@@ -23,7 +31,9 @@ function TaskItem({ task }) {
 
       //* if worked update our ui without making another request to db
       if (!result.error) {
-        dispatch(updateTasksState({ taskId, newState }));
+        dispatch(
+          updateTasksState({ taskId, newTaskState: { state: newState } })
+        );
       } else {
         throw new Error(result.error.message);
       }
@@ -41,7 +51,27 @@ function TaskItem({ task }) {
       <div className="task-header">
         <img src={task.imageKey} alt={task.title} />
         <div>
-          <div className="title">{task.title}</div>
+          <div className="title">
+            <span>{task.title}</span>
+
+            {
+              // only show delete and edit buttons if the user is the owner of the task
+              user.$id === task.userId && (
+                <div className="icons">
+                  {<Delete onClick={() => console.log("delete clicked")} />}
+                  {<Edit onClick={() => setIsEdit(true)} />}
+                </div>
+              )
+            }
+
+            {isEdit && (
+              <TaskDialog
+                isEdit={true}
+                task={task}
+                onClose={() => setIsEdit(false)}
+              />
+            )}
+          </div>
           <div className="priority-container">
             <span
               style={{

@@ -74,9 +74,10 @@ const tasksSlice = createSlice({
   reducers: {
     // we can make it more generic to update any value of the task
     updateTasksState(state, action) {
-      const { taskId, newState } = action.payload;
+      // @desc: newTaskState : the updated values
+      const { taskId, newTaskState } = action.payload;
       state.tasks = state.tasks.map((task) =>
-        task.$id === taskId ? { ...task, state: newState } : task
+        task.$id === taskId ? { ...task, ...newTaskState } : task
       );
     },
   },

@@ -3,39 +3,96 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Spinner from "../Icons/Spinner";
 import { createImage } from "../appwrite/config";
 import { useDispatch } from "react-redux";
-import { createTask } from "../store/taskSlice";
+import { createTask, updateTask, updateTasksState } from "../store/taskSlice";
 import { useAuth } from "../context/AuthContext";
 import { createTaskSchema } from "../schemas";
 import { toast } from "react-toastify";
 
-const TaskDialog = ({ onClose }) => {
+const TaskDialog = ({ onClose, isEdit = false, task = null }) => {
   const dispatch = useDispatch();
   const { user } = useAuth();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, dirtyFields, isDirty },
   } = useForm({
-    resolver: yupResolver(createTaskSchema),
+    resolver: yupResolver(createTaskSchema({ hasExistingImage: isEdit })),
+    defaultValues: task || {
+      title: "",
+      description: "",
+      priority: "",
+      imageKey: "",
+    },
   });
 
+  // const onSubmit = async (data) => {
+  //   try {
+  //     // uploading the image to appwrite bucket
+  //     const response = await createImage(data.imageKey[0]);
+
+  //     if (response) {
+  //       const result = await dispatch(
+  //         createTask({ ...data, userId: user.$id, imageKey: response.$id })
+  //       );
+  //       if (result.error) {
+  //         throw new Error(result.error.message);
+  //       } else {
+  //         onClose();
+  //       }
+  //     }
+  //   } catch (error) {
+  //     toast("Failed to create new task", {
+  //       position: "top-center",
+  //       type: "error",
+  //       theme: "dark",
+  //     });
+  //   }
+  // };
   const onSubmit = async (data) => {
     try {
-      // uploading the image to appwrite bucket
-      const response = await createImage(data.imageKey[0]);
+      const updatedData = Object.keys(dirtyFields).reduce((acc, field) => {
+        acc[field] = data[field];
+        return acc;
+      }, {});
 
-      if (response) {
-        const result = await dispatch(
-          createTask({ ...data, userId: user.$id, imageKey: response.$id })
+      // if no property is changed return
+      if (!isDirty) {
+        console.log("nothing changed");
+        return;
+      }
+
+      // Optional: Handle image upload separately if changed
+      if (updatedData.imageKey) {
+        console.log("image changed");
+        const response = await createImage(updatedData.imageKey[0]);
+        updatedData.imageKey = response.$id; // Set imageKey to uploaded file ID
+      }
+
+      let result;
+
+      if (isEdit) {
+        result = await dispatch(
+          updateTask({ taskId: task.$id, data: { ...updatedData } })
         );
-        if (result.error) {
-          throw new Error(result.error.message);
-        } else {
-          onClose();
-        }
+      } else {
+        result = await dispatch(
+          createTask({ ...updatedData, userId: user.$id })
+        );
+      }
+
+      if (result.error) {
+        throw new Error(result.error.message);
+      } else {
+        dispatch(
+          updateTasksState({
+            taskId: task.$id,
+            newTaskState: { ...updatedData },
+          })
+        );
+        onClose();
       }
     } catch (error) {
-      toast("Failed to create new task", {
+      toast(`Failed to ${isEdit ? "update" : "create"} task`, {
         position: "top-center",
         type: "error",
         theme: "dark",
@@ -77,6 +134,13 @@ const TaskDialog = ({ onClose }) => {
         <div className="formGroup">
           <label htmlFor="imageKey">Image</label>
           <input type="file" id="imageKey" {...register("imageKey")} />
+          {isEdit && (
+            <img
+              src={task.imageKey}
+              alt="Uploaded Task Image"
+              className="preview-image"
+            />
+          )}
 
           {errors.imageKey && (
             <span className="err-msg">{`${errors.imageKey.message}`}</span>
@@ -84,8 +148,12 @@ const TaskDialog = ({ onClose }) => {
         </div>
 
         <div className="btn-group">
-          <button className={`btn`} type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner /> : "Add Task"}
+          <button
+            className={`btn`}
+            type="submit"
+            disabled={isSubmitting || (!isDirty && isEdit)}
+          >
+            {isSubmitting ? <Spinner /> : isEdit ? "Update Task" : "Add Task"}
           </button>
           <button className={`cancel-btn`} type="button" onClick={onClose}>
             Cancel
