@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { db } from "../appwrite/databases";
-import { getImageUrl } from "../appwrite/config";
 
 // Async thunk for fetching tasks
 export const fetchTasks = createAsyncThunk(
@@ -8,9 +7,6 @@ export const fetchTasks = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await db.tasks.list();
-      response.documents.forEach(
-        (task) => (task.imageKey = getImageUrl(task.imageKey))
-      );
       return response.documents;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -40,7 +36,7 @@ export const deleteTask = createAsyncThunk(
     try {
       const response = await db.tasks.delete(taskId);
       // Todo : update our tasks
-      return response;
+      return taskId;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -76,16 +72,21 @@ const tasksSlice = createSlice({
     updateTasksState(state, action) {
       // @desc: newTaskState : the updated values
       const { taskId, newTaskState } = action.payload;
-      state.tasks = state.tasks.map((task) =>
-        task.$id === taskId ? { ...task, ...newTaskState } : task
-      );
+      // when removing item
+      if (!newTaskState) {
+        state.tasks = state.tasks.filter((task) => task.$id !== taskId);
+      }
+      // when updating item
+      else {
+        state.tasks = state.tasks.map((task) =>
+          task.$id === taskId ? { ...task, ...newTaskState } : task
+        );
+      }
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTasks.pending, (state) => {
-        state.status = "loading";
-      })
+
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.tasks = action.payload;
@@ -94,20 +95,39 @@ const tasksSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
       })
+
       .addCase(createTask.fulfilled, (state, action) => {
         state.tasks.push(action.payload);
       })
       .addCase(createTask.rejected, (state, action) => {
         state.error = action.payload;
       })
+
       .addCase(deleteTask.fulfilled, (state, action) => {
-        state.tasks.push(action.payload);
+        state.loading = false;
+        console.log("case deleteTask fulfilled", action.payload);
+        state.tasks = state.tasks.filter((task) => task.$id !== action.payload); // Remove task by id
       })
       .addCase(deleteTask.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(updateTask.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.loading = false;
+        const updatedTask = action.payload; // This is the updated task object returned by Appwrite
+        console.log("update case", updateTask);
+        const taskIndex = state.tasks.findIndex(
+          (task) => task.$id === updatedTask.$id
+        );
+
+        if (taskIndex !== -1) {
+          // Update the task in the tasks array
+          state.tasks[taskIndex] = {
+            ...state.tasks[taskIndex],
+            ...updatedTask, // Spread the updated fields onto the existing task
+          };
+        }
       });
   },
 });

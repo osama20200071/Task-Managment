@@ -1,9 +1,9 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Spinner from "../Icons/Spinner";
-import { createImage } from "../appwrite/config";
+import { createImage, getImageUrl } from "../appwrite/config";
 import { useDispatch } from "react-redux";
-import { createTask, updateTask, updateTasksState } from "../store/taskSlice";
+import { createTask, updateTask } from "../store/taskSlice";
 import { useAuth } from "../context/AuthContext";
 import { createTaskSchema } from "../schemas";
 import { toast } from "react-toastify";
@@ -25,29 +25,6 @@ const TaskDialog = ({ onClose, isEdit = false, task = null }) => {
     },
   });
 
-  // const onSubmit = async (data) => {
-  //   try {
-  //     // uploading the image to appwrite bucket
-  //     const response = await createImage(data.imageKey[0]);
-
-  //     if (response) {
-  //       const result = await dispatch(
-  //         createTask({ ...data, userId: user.$id, imageKey: response.$id })
-  //       );
-  //       if (result.error) {
-  //         throw new Error(result.error.message);
-  //       } else {
-  //         onClose();
-  //       }
-  //     }
-  //   } catch (error) {
-  //     toast("Failed to create new task", {
-  //       position: "top-center",
-  //       type: "error",
-  //       theme: "dark",
-  //     });
-  //   }
-  // };
   const onSubmit = async (data) => {
     try {
       const updatedData = Object.keys(dirtyFields).reduce((acc, field) => {
@@ -83,15 +60,10 @@ const TaskDialog = ({ onClose, isEdit = false, task = null }) => {
       if (result.error) {
         throw new Error(result.error.message);
       } else {
-        dispatch(
-          updateTasksState({
-            taskId: task.$id,
-            newTaskState: { ...updatedData },
-          })
-        );
         onClose();
       }
     } catch (error) {
+      console.log(error);
       toast(`Failed to ${isEdit ? "update" : "create"} task`, {
         position: "top-center",
         type: "error",
@@ -136,7 +108,7 @@ const TaskDialog = ({ onClose, isEdit = false, task = null }) => {
           <input type="file" id="imageKey" {...register("imageKey")} />
           {isEdit && (
             <img
-              src={task.imageKey}
+              src={getImageUrl(task.imageKey)}
               alt="Uploaded Task Image"
               className="preview-image"
             />

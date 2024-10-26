@@ -1,11 +1,17 @@
 import { useDispatch } from "react-redux";
-import { updateTask, updateTasksState } from "../../store/taskSlice";
+import {
+  deleteTask,
+  updateTask,
+  updateTasksState,
+} from "../../store/taskSlice";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
 import Delete from "../../Icons/Delete";
 import Edit from "../../Icons/Edit";
 import { useState } from "react";
 import TaskDialog from "../TaskDialog";
+import DeleteConfirmation from "../Modal";
+import { getImageUrl } from "../../appwrite/config";
 
 const priorityColors = {
   low: "rgb(59 130 246)",
@@ -16,7 +22,22 @@ const priorityColors = {
 function TaskItem({ task }) {
   const dispatch = useDispatch();
   const [isEdit, setIsEdit] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { user } = useAuth();
+
+  const deleteHandler = async (taskId) => {
+    try {
+      await dispatch(deleteTask(taskId));
+    } catch (error) {
+      toast("Failed to delete the task", {
+        position: "top-center",
+        type: "error",
+        theme: "dark",
+      });
+      //
+    }
+    setIsDeleting(false);
+  };
 
   const changeTaskState = async (taskId, newState) => {
     if (newState === "") {
@@ -49,7 +70,7 @@ function TaskItem({ task }) {
   return (
     <div className="task-item">
       <div className="task-header">
-        <img src={task.imageKey} alt={task.title} />
+        <img src={getImageUrl(task.imageKey)} alt={task.title} />
         <div>
           <div className="title">
             <span>{task.title}</span>
@@ -58,7 +79,7 @@ function TaskItem({ task }) {
               // only show delete and edit buttons if the user is the owner of the task
               user.$id === task.userId && (
                 <div className="icons">
-                  {<Delete onClick={() => console.log("delete clicked")} />}
+                  {<Delete onClick={() => setIsDeleting(true)} />}
                   {<Edit onClick={() => setIsEdit(true)} />}
                 </div>
               )
@@ -69,6 +90,12 @@ function TaskItem({ task }) {
                 isEdit={true}
                 task={task}
                 onClose={() => setIsEdit(false)}
+              />
+            )}
+            {isDeleting && (
+              <DeleteConfirmation
+                onCancel={() => setIsDeleting(false)}
+                onConfirm={() => deleteHandler(task.$id)}
               />
             )}
           </div>
