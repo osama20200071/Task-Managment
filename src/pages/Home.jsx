@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { fetchTasks } from "../store/taskSlice";
 import { useSelector } from "react-redux";
 import Board from "../components/Board/Board";
+import Spinner from "../Icons/Spinner";
 
 function HomePage() {
   const dispatch = useDispatch();
@@ -12,7 +13,8 @@ function HomePage() {
   }, [dispatch]);
 
   if (tasks.length === 0) {
-    return <div>Loading...</div>;
+    return <Spinner size="60" />;
+    // return <div>Loading...</div>;
   }
 
   if (tasks.length > 0) {
