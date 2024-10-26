@@ -6,9 +6,11 @@ import Spinner from "../Icons/Spinner";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import { loginSchema } from "../schemas";
+import { useSearchParams } from "react-router-dom";
 
 function Login() {
   const { handleLogin } = useAuth();
+  const [params, setSearchParams] = useSearchParams();
 
   const {
     register,
@@ -17,6 +19,10 @@ function Login() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(loginSchema),
+    defaultValues: {
+      email: params.get("email") || "",
+      password: params.get("password") || "",
+    },
   });
 
   const onSubmit = async (data) => {
@@ -39,7 +45,7 @@ function Login() {
       <form onSubmit={handleSubmit(onSubmit)} className="form">
         <div className="formGroup">
           <label htmlFor="email">Email</label>
-          <input type="email" id="email" {...register("email")} />
+          <input type="text" id="email" {...register("email")} />
           {errors.email && (
             <span className="err-msg">{`${errors.email.message}`}</span>
           )}

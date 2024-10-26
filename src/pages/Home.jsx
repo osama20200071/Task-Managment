@@ -7,25 +7,16 @@ import Spinner from "../Icons/Spinner";
 
 function HomePage() {
   const dispatch = useDispatch();
-  const { tasks } = useSelector((state) => state.tasks);
+  const { status } = useSelector((state) => state.tasks);
   useEffect(() => {
     dispatch(fetchTasks());
   }, [dispatch]);
 
-  if (tasks.length === 0) {
+  if (status === "loading") {
     return <Spinner size="60" />;
-    // return <div>Loading...</div>;
   }
 
-  if (tasks.length > 0) {
-    return (
-      <>
-        <Board />
-      </>
-    );
-  }
-
-  return <div>HomePage</div>;
+  return <Board />;
 }
 
 export default HomePage;

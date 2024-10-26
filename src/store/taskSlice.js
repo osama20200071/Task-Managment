@@ -29,7 +29,7 @@ export const createTask = createAsyncThunk(
   }
 );
 
-// Async thunk for deleting a task
+// Async thunk for deleting a specific task
 export const deleteTask = createAsyncThunk(
   "tasks/deleteTask",
   async (taskId, { rejectWithValue }) => {
@@ -49,10 +49,7 @@ export const updateTask = createAsyncThunk(
   // contains only the updated
   async (update, { rejectWithValue }) => {
     try {
-      console.log("taskData:", update);
-      // Todo : Add the updateTask data to our tasks
       const response = await db.tasks.update(update.taskId, { ...update.data });
-      console.log("updating task request :", response);
       return response;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -67,23 +64,7 @@ const tasksSlice = createSlice({
     status: "idle", // "idle" | "loading" | "succeeded" | "failed"
     error: null,
   },
-  reducers: {
-    // we can make it more generic to update any value of the task
-    updateTasksState(state, action) {
-      // @desc: newTaskState : the updated values
-      const { taskId, newTaskState } = action.payload;
-      // when removing item
-      if (!newTaskState) {
-        state.tasks = state.tasks.filter((task) => task.$id !== taskId);
-      }
-      // when updating item
-      else {
-        state.tasks = state.tasks.map((task) =>
-          task.$id === taskId ? { ...task, ...newTaskState } : task
-        );
-      }
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
 
@@ -116,7 +97,6 @@ const tasksSlice = createSlice({
       .addCase(updateTask.fulfilled, (state, action) => {
         state.loading = false;
         const updatedTask = action.payload; // This is the updated task object returned by Appwrite
-        console.log("update case", updateTask);
         const taskIndex = state.tasks.findIndex(
           (task) => task.$id === updatedTask.$id
         );

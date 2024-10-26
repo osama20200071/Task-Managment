@@ -46,18 +46,13 @@ function TaskItem({ task }) {
 
     try {
       //* first make update for this specific item on the db
-      const result = await dispatch(
+      await dispatch(
         updateTask({ taskId: task.$id, data: { state: newState } })
       );
 
-      //* if worked update our ui without making another request to db
-      if (!result.error) {
-        dispatch(
-          updateTasksState({ taskId, newTaskState: { state: newState } })
-        );
-      } else {
-        throw new Error(result.error.message);
-      }
+      // if (result.error) {
+      //   throw new Error(result.error.message);
+      // }
     } catch (error) {
       toast("Task update failed", {
         position: "top-center",
