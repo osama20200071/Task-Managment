@@ -41,8 +41,7 @@ const AuthContext = ({ children }) => {
       const currentUser = await account.get();
       setUser(currentUser);
     } catch (error) {
-      console.log("failed to login");
-      return error.message;
+      throw new Error(error.message);
     }
   };
 
@@ -60,8 +59,6 @@ const AuthContext = ({ children }) => {
         credentials.password,
         credentials.name
       );
-      console.log("User registered!", response);
-      // onRest();
 
       await account.createEmailPasswordSession(
         credentials.email,
@@ -70,7 +67,7 @@ const AuthContext = ({ children }) => {
       let currentUser = await account.get();
       setUser(currentUser);
     } catch (error) {
-      console.error(error);
+      throw new Error(error.message);
     }
   };
 

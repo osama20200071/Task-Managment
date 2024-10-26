@@ -1,25 +1,10 @@
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { useAuth } from "../context/AuthContext";
 import Spinner from "../Icons/Spinner";
-
-const schema = yup.object({
-  name: yup.string().required("Name is required"),
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("must be a valid email"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must have at least 8 characters"),
-  confirmPassword: yup
-    .string()
-    .required("Confirm Password is required")
-    .oneOf([yup.ref("password"), null], "Passwords must match"),
-});
+import { toast } from "react-toastify";
+import { registerSchema } from "../schemas/index";
 
 function Register() {
   const { handleRegister } = useAuth();
@@ -31,12 +16,21 @@ function Register() {
 
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(registerSchema),
   });
 
   const onSubmit = async (data) => {
     console.log(data);
-    await handleRegister(data, reset);
+    try {
+      await handleRegister(data, reset);
+    } catch (error) {
+      console.log("Error:", error);
+      toast("Failed to create an Account", {
+        position: "top-center",
+        type: "error",
+        theme: "dark",
+      });
+    }
   };
 
   return (

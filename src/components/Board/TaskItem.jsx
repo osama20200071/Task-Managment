@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux";
 import { updateTask, updateTasksState } from "../../store/taskSlice";
+import { toast } from "react-toastify";
 
 const priorityColors = {
   low: "rgb(59 130 246)",
@@ -10,20 +11,28 @@ const priorityColors = {
 function TaskItem({ task }) {
   const dispatch = useDispatch();
   const changeTaskState = async (taskId, newState) => {
+    if (newState === "") {
+      return;
+    }
+
     try {
-      // first make update for this specific item on the db
+      //* first make update for this specific item on the db
       const result = await dispatch(
         updateTask({ taskId: task.$id, data: { state: newState } })
       );
-      //* if worked update our ui without making another request
-      if (updateTask.fulfilled.match(result)) {
+
+      //* if worked update our ui without making another request to db
+      if (!result.error) {
         dispatch(updateTasksState({ taskId, newState }));
       } else {
-        //Todo: show user that update failed using toast
-        console.error("Task creation failed:", result.error.message);
+        throw new Error(result.error.message);
       }
     } catch (error) {
-      console.error("Unexpected error:", error);
+      toast("Task update failed", {
+        position: "top-center",
+        type: "error",
+        theme: "dark",
+      });
     }
   };
 

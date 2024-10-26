@@ -1,24 +1,14 @@
 import "../form.css";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import Callout from "../components/Callout";
 import Spinner from "../Icons/Spinner";
 import { useAuth } from "../context/AuthContext";
-
-const schema = yup.object({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("must be a valid email"),
-  password: yup.string().required("Password is required"),
-});
+import { toast } from "react-toastify";
+import { loginSchema } from "../schemas";
 
 function Login() {
   const { handleLogin } = useAuth();
-  const [err, setErr] = useState("");
 
   const {
     register,
@@ -26,26 +16,25 @@ function Login() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(loginSchema),
   });
 
   const onSubmit = async (data) => {
     console.log(data);
     // i return the error message from the handleLogin if there is error
-    const errMsg = await handleLogin(data, reset);
-
-    if (errMsg) {
-      setErr(errMsg);
+    try {
+      await handleLogin(data, reset);
+    } catch (err) {
+      toast("Invalid credentials. Please check the email and password.", {
+        position: "top-center",
+        type: "error",
+        theme: "dark",
+      });
     }
   };
 
   return (
     <div>
-      {err && (
-        <Callout type="error" title="Error">
-          {err}
-        </Callout>
-      )}
       <h2 className="form-title">Login</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="form">
         <div className="formGroup">

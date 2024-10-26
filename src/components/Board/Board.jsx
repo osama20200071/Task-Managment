@@ -3,67 +3,8 @@ import Plus from "../../Icons/Plus";
 import TaskDialog from "../TaskDialog";
 import TaskList from "./TaskList";
 import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { updateTask, updateTasksState } from "../../store/taskSlice";
-// const initialTasks = [
-//   {
-//     id: 1,
-//     title: "Design new logo",
-//     description: "Create a new logo for our brand",
-//     priority: "high",
-//     state: "todo",
-//     imageKey:
-//       "https://cloud.appwrite.io/v1/storage/buckets/671bd7d000199570bedd/files/671c9a8300360b07ed98/view?project=671bc151001583f28ca6&project=671bc151001583f28ca6&mode=admin",
-//   },
-//   {
-//     id: 21,
-//     title: "Design new logo",
-//     description: "Create a new logo for our brand",
-//     priority: "high",
-//     state: "todo",
-//     imageKey:
-//       "https://cloud.appwrite.io/v1/storage/buckets/671bd7d000199570bedd/files/671c9a8300360b07ed98/view?project=671bc151001583f28ca6&project=671bc151001583f28ca6&mode=admin",
-//   },
-//   {
-//     id: 31,
-//     title: "Design new logo",
-//     description: "Create a new logo for our brand",
-//     priority: "high",
-//     state: "todo",
-//     imageKey:
-//       "https://cloud.appwrite.io/v1/storage/buckets/671bd7d000199570bedd/files/671c9a8300360b07ed98/view?project=671bc151001583f28ca6&project=671bc151001583f28ca6&mode=admin",
-//   },
-//   {
-//     id: 34,
-//     title: "Design new logo",
-//     description: "Create a new logo for our brand",
-//     priority: "high",
-//     state: "todo",
-//     imageKey:
-//       "https://cloud.appwrite.io/v1/storage/buckets/671bd7d000199570bedd/files/671c9a8300360b07ed98/view?project=671bc151001583f28ca6&project=671bc151001583f28ca6&mode=admin",
-//   },
-//   {
-//     id: 2,
-//     title: "Implement login page",
-//     description: "Develop the login page for the web app",
-//     priority: "medium",
-//     state: "doing",
-//     imageKey:
-//       "https://cloud.appwrite.io/v1/storage/buckets/671bd7d000199570bedd/files/671c9a8300360b07ed98/view?project=671bc151001583f28ca6&project=671bc151001583f28ca6&mode=admin",
-//   },
-//   {
-//     id: 3,
-//     title: "Write documentation",
-//     description: "Document the new features",
-//     priority: "low",
-//     state: "done",
-//     imageKey:
-//       "https://cloud.appwrite.io/v1/storage/buckets/671bd7d000199570bedd/files/671c9a8300360b07ed98/view?project=671bc151001583f28ca6&project=671bc151001583f28ca6&mode=admin",
-//   },
-// ];
 
 function Board() {
-  const dispatch = useDispatch();
   const { tasks } = useSelector((state) => state.tasks);
   const [filterPriority, setFilterPriority] = useState("");
   const [filterState, setFilterState] = useState("");
@@ -134,7 +75,6 @@ function Board() {
               (task) => task.state === state.toLowerCase()
             )}
             header={state}
-            // changeTaskState={changeTaskState}
           />
         ))}
       </div>
