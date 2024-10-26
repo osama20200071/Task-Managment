@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { db } from "../appwrite/databases";
+import { getImageUrl } from "../appwrite/config";
 
 // Async thunk for fetching tasks
 export const fetchTasks = createAsyncThunk(
@@ -7,6 +8,9 @@ export const fetchTasks = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await db.tasks.list();
+      response.documents.forEach(
+        (task) => (task.imageKey = getImageUrl(task.imageKey))
+      );
       return response.documents;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -15,11 +19,12 @@ export const fetchTasks = createAsyncThunk(
 );
 
 // Async thunk for adding a task
-export const addTask = createAsyncThunk(
-  "tasks/addTask",
+export const createTask = createAsyncThunk(
+  "tasks/createTask",
   async (taskData, { rejectWithValue }) => {
     try {
-      // Todo : Add the task data to our tasks
+      console.log(taskData);
+      //* : Add the task data to our tasks
       const response = await db.tasks.create(taskData);
       return response;
     } catch (error) {
@@ -42,6 +47,23 @@ export const deleteTask = createAsyncThunk(
   }
 );
 
+// Async thunk for updating a specific task
+export const updateTask = createAsyncThunk(
+  "tasks/updateTask",
+  // contains only the updated
+  async (update, { rejectWithValue }) => {
+    try {
+      console.log("taskData:", update);
+      // Todo : Add the updateTask data to our tasks
+      const response = await db.tasks.update(update.taskId, { ...update.data });
+      console.log("updating task request :", response);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const tasksSlice = createSlice({
   name: "tasks",
   initialState: {
@@ -49,7 +71,15 @@ const tasksSlice = createSlice({
     status: "idle", // "idle" | "loading" | "succeeded" | "failed"
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // we can make it more generic to update any value of the task
+    updateTasksState(state, action) {
+      const { taskId, newState } = action.payload;
+      state.tasks = state.tasks.map((task) =>
+        task.$id === taskId ? { ...task, state: newState } : task
+      );
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTasks.pending, (state) => {
@@ -63,10 +93,10 @@ const tasksSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
       })
-      .addCase(addTask.fulfilled, (state, action) => {
+      .addCase(createTask.fulfilled, (state, action) => {
         state.tasks.push(action.payload);
       })
-      .addCase(addTask.rejected, (state, action) => {
+      .addCase(createTask.rejected, (state, action) => {
         state.error = action.payload;
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
@@ -74,8 +104,13 @@ const tasksSlice = createSlice({
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.error = action.payload;
+      })
+      .addCase(updateTask.fulfilled, (state, action) => {
+        state.status = "succeeded";
       });
   },
 });
+
+export const { updateTasksState } = tasksSlice.actions;
 
 export default tasksSlice;

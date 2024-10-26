@@ -10,9 +10,12 @@ import AuthContext from "./context/AuthContext.jsx";
 import { Provider } from "react-redux";
 import store from "./store/ReduxStore.js";
 import Prevent from "./utils/Prevent.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 createRoot(document.getElementById("root")).render(
   <AuthContext>
+    <ToastContainer />
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>

@@ -14,7 +14,7 @@ collections.forEach((collection) => {
         permissions
       );
     },
-    update: async (payload, id) => {
+    update: async (id, payload) => {
       return await databases.updateDocument(
         collection.dbId,
         collection.id,

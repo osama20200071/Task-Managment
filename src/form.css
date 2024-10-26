@@ -1,4 +1,17 @@
 /* Login & Register Pages */
+/* Dark overlay for the dialog background */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
 .form {
   display: flex;
@@ -19,6 +32,12 @@
     background-color: var(--background-color);
     cursor: pointer;
     color: var(--color);
+  }
+
+  .cancel-btn {
+    background-color: transparent;
+    color: #000;
+    border: 1px solid #000;
   }
 
   .btn:disabled {
@@ -44,8 +63,9 @@
     color: var(--background-color);
   }
 
-  input {
-    font-weight: bold;
+  input,
+  select {
+    /* font-weight: bold; */
     background-color: var(--form-bg);
     font-size: 1rem;
     /* border: 1px solid #00000023; */
@@ -68,6 +88,11 @@
 
 .formGroup:last-of-type {
   margin-bottom: 1rem;
+}
+
+.btn-group {
+  display: flex;
+  gap: 20px;
 }
 
 .err-msg {

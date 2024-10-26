@@ -20,8 +20,8 @@ const collections = [
   },
 ];
 
-async function getImageUrl(fileKey) {
-  return await storage.getFile(BUCKET_ID, fileKey);
+function getImageUrl(fileKey) {
+  return storage.getFilePreview(BUCKET_ID, fileKey);
 }
 
 async function deleteImage(fileKey) {
