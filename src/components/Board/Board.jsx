@@ -3,12 +3,14 @@ import Plus from "../../Icons/Plus";
 import TaskDialog from "../TaskDialog";
 import TaskList from "./TaskList";
 import { useSelector } from "react-redux";
+import { useDebouncedValue } from "../../hooks/hooks";
 
 function Board() {
   const { tasks } = useSelector((state) => state.tasks);
+  const { state: searchTerm, ChangeHandler } = useDebouncedValue("", 500);
   const [filterPriority, setFilterPriority] = useState("");
   const [filterState, setFilterState] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
   const filteredTasks = tasks.filter(
@@ -32,8 +34,9 @@ function Board() {
             <input
               type="text"
               placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              // value={searchTerm}
+              // onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={ChangeHandler}
             />
           </div>
           <div className="filter">
